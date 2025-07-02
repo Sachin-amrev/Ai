@@ -3,16 +3,8 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -38,10 +30,8 @@ import {
   PieChart,
   BarChart3,
   Activity,
-  DollarSign,
   Sparkles,
-  Shield,
-  Zap,
+  Target,
 } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -56,6 +46,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { KYCVerificationForm } from "@/components/kyc/kyc-verification-form"
+import { DashboardView, PlansView, WalletView, PortfolioView, TransactionsView } from "./dashboard-views"
 
 interface UserType {
   id: string
@@ -145,6 +136,10 @@ export function ModernDashboard({ user, onLogout }: DashboardProps) {
   const [showPlanModal, setShowPlanModal] = useState(false)
   const [showKYCModal, setShowKYCModal] = useState(false)
   const [kycStatus, setKycStatus] = useState<"pending" | "verified" | "rejected" | "not_started">("not_started")
+  const [currentView, setCurrentView] = useState<"dashboard" | "plans" | "wallet" | "portfolio" | "transactions">(
+    "dashboard",
+  )
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const handleWalletTransaction = (type: "deposit" | "withdrawal", amount: number, method: string, note: string) => {
     const transactionAmount = type === "withdrawal" ? -amount : amount
@@ -325,497 +320,267 @@ export function ModernDashboard({ user, onLogout }: DashboardProps) {
               </div>
             </div>
 
+            {/* Mobile & Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <a
-                href="#home"
-                className="text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl transition-all duration-300 backdrop-blur-sm"
+              <button
+                onClick={() => setCurrentView("dashboard")}
+                className={`text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl transition-all duration-300 backdrop-blur-sm ${
+                  currentView === "dashboard" ? "bg-white/20 text-white" : ""
+                }`}
               >
                 Dashboard
-              </a>
-              <a
-                href="#plans"
-                className="text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl transition-all duration-300 backdrop-blur-sm"
+              </button>
+              <button
+                onClick={() => setCurrentView("plans")}
+                className={`text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl transition-all duration-300 backdrop-blur-sm ${
+                  currentView === "plans" ? "bg-white/20 text-white" : ""
+                }`}
               >
                 Plans
-              </a>
-              <a
-                href="#wallet"
-                className="text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl transition-all duration-300 backdrop-blur-sm"
+              </button>
+              <button
+                onClick={() => setCurrentView("wallet")}
+                className={`text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl transition-all duration-300 backdrop-blur-sm ${
+                  currentView === "wallet" ? "bg-white/20 text-white" : ""
+                }`}
               >
                 Wallet
-              </a>
-              <a
-                href="#portfolio"
-                className="text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl transition-all duration-300 backdrop-blur-sm"
+              </button>
+              <button
+                onClick={() => setCurrentView("portfolio")}
+                className={`text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl transition-all duration-300 backdrop-blur-sm ${
+                  currentView === "portfolio" ? "bg-white/20 text-white" : ""
+                }`}
               >
                 Portfolio
-              </a>
-
-              {/* Notification Bell */}
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="relative text-white hover:bg-white/10 rounded-xl backdrop-blur-sm"
-                  >
-                    {unreadCount > 0 ? <BellRing className="h-5 w-5" /> : <Bell className="h-5 w-5" />}
-                    {unreadCount > 0 && (
-                      <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-red-500 to-pink-500 border-0">
-                        {unreadCount > 9 ? "9+" : unreadCount}
-                      </Badge>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80 p-0 bg-slate-900/95 backdrop-blur-xl border-slate-700" align="end">
-                  <div className="p-4 border-b border-slate-700">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-white">Notifications</h3>
-                      {unreadCount > 0 && (
-                        <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-slate-400">
-                          Mark all read
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-
-                  <ScrollArea className="h-80">
-                    {notifications.length === 0 ? (
-                      <div className="p-4 text-center text-slate-400">No notifications yet</div>
-                    ) : (
-                      <div className="space-y-1">
-                        {notifications.slice(0, 10).map((notification) => (
-                          <div
-                            key={notification.id}
-                            className={`p-3 hover:bg-slate-800/50 cursor-pointer border-b border-slate-800 last:border-b-0 ${
-                              !notification.read ? "bg-blue-900/20" : ""
-                            }`}
-                            onClick={() => markAsRead(notification.id)}
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex items-start gap-2 flex-1">
-                                {notification.icon}
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2">
-                                    <p className="text-sm font-medium truncate text-white">{notification.title}</p>
-                                    {!notification.read && (
-                                      <div className="h-2 w-2 bg-blue-500 rounded-full flex-shrink-0" />
-                                    )}
-                                  </div>
-                                  <p className="text-xs text-slate-400 mt-1">{notification.message}</p>
-                                  <p className="text-xs text-slate-500 mt-1">
-                                    {notification.timestamp.toLocaleTimeString()}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </ScrollArea>
-
-                  {notifications.length > 0 && (
-                    <div className="p-3 border-t border-slate-700">
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-medium text-white">Notification Settings</h4>
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-slate-400">Transactions</span>
-                            <Switch
-                              checked={notificationSettings.transactions}
-                              onCheckedChange={(checked) =>
-                                setNotificationSettings((prev) => ({ ...prev, transactions: checked }))
-                              }
-                            />
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-slate-400">Market Updates</span>
-                            <Switch
-                              checked={notificationSettings.marketUpdates}
-                              onCheckedChange={(checked) =>
-                                setNotificationSettings((prev) => ({ ...prev, marketUpdates: checked }))
-                              }
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </PopoverContent>
-              </Popover>
-
-              {/* User Menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-xl">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src="/placeholder.svg" alt={user.name} />
-                      <AvatarFallback className="bg-gradient-to-r from-cyan-400 to-blue-500 text-white">
-                        {user.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="w-56 bg-slate-900/95 backdrop-blur-xl border-slate-700"
-                  align="end"
-                  forceMount
-                >
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none text-white">{user.name}</p>
-                      <p className="text-xs leading-none text-slate-400">{user.email}</p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="bg-slate-700" />
-                  <DropdownMenuItem onClick={() => setShowKYCModal(true)} className="text-slate-300 hover:text-white">
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profile & KYC</span>
-                    {kycStatus === "verified" && <CheckCircle className="ml-auto h-4 w-4 text-green-500" />}
-                    {kycStatus === "pending" && <Clock className="ml-auto h-4 w-4 text-yellow-500" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-slate-300 hover:text-white">
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-slate-700" />
-                  <DropdownMenuItem onClick={onLogout} className="text-slate-300 hover:text-white">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </nav>
-        </div>
-      </header>
-
-      <main>
-        {/* Modern Welcome Section */}
-        <section className="py-12 text-white">
-          <div className="container mx-auto px-6">
-            <div className="text-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-                Welcome back, {user.name}!
-              </h1>
-              <p className="text-xl text-slate-300">Track your investments and grow your wealth with InvestPro</p>
-            </div>
-          </div>
-        </section>
-
-        <div className="container mx-auto px-6">
-          {/* Modern Stats Section */}
-          <section className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-            {[
-              {
-                number: formatCurrency(walletBalance),
-                label: "Portfolio Value",
-                icon: DollarSign,
-                gradient: "from-green-400 to-emerald-500",
-                bgGradient: "from-green-500/20 to-emerald-500/20",
-              },
-              {
-                number: "+8.6%",
-                label: "Monthly Growth",
-                icon: TrendingUp,
-                gradient: "from-blue-400 to-cyan-500",
-                bgGradient: "from-blue-500/20 to-cyan-500/20",
-              },
-              {
-                number: "12.5%",
-                label: "Annual Returns",
-                icon: BarChart3,
-                gradient: "from-purple-400 to-pink-500",
-                bgGradient: "from-purple-500/20 to-pink-500/20",
-              },
-              {
-                number: "5",
-                label: "Active Investments",
-                icon: Activity,
-                gradient: "from-orange-400 to-red-500",
-                bgGradient: "from-orange-500/20 to-red-500/20",
-              },
-            ].map((stat, index) => (
-              <Card
-                key={index}
-                className={`relative overflow-hidden border-0 bg-gradient-to-br ${stat.bgGradient} backdrop-blur-xl text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl`}
+              </button>
+              <button
+                onClick={() => setCurrentView("transactions")}
+                className={`text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl transition-all duration-300 backdrop-blur-sm ${
+                  currentView === "transactions" ? "bg-white/20 text-white" : ""
+                }`}
               >
-                <CardContent className="p-6 text-center">
-                  <div className="flex justify-center mb-3">
-                    <div className={`p-3 rounded-xl bg-gradient-to-r ${stat.gradient}`}>
-                      <stat.icon className="h-6 w-6 text-white" />
-                    </div>
+                Transactions
+              </button>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden text-white hover:bg-white/10 rounded-xl backdrop-blur-sm"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              <div className="w-6 h-6 flex flex-col justify-center items-center">
+                <span
+                  className={`bg-white block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm ${
+                    isMobileMenuOpen ? "rotate-45 translate-y-1" : "-translate-y-0.5"
+                  }`}
+                ></span>
+                <span
+                  className={`bg-white block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm my-0.5 ${
+                    isMobileMenuOpen ? "opacity-0" : "opacity-100"
+                  }`}
+                ></span>
+                <span
+                  className={`bg-white block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm ${
+                    isMobileMenuOpen ? "-rotate-45 -translate-y-1" : "translate-y-0.5"
+                  }`}
+                ></span>
+              </div>
+            </Button>
+
+            {/* Notification Bell */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative text-white hover:bg-white/10 rounded-xl backdrop-blur-sm"
+                >
+                  {unreadCount > 0 ? <BellRing className="h-5 w-5" /> : <Bell className="h-5 w-5" />}
+                  {unreadCount > 0 && (
+                    <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-red-500 to-pink-500 border-0">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </Badge>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-0 bg-slate-900/95 backdrop-blur-xl border-slate-700" align="end">
+                <div className="p-4 border-b border-slate-700">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-white">Notifications</h3>
+                    {unreadCount > 0 && (
+                      <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-slate-400">
+                        Mark all read
+                      </Button>
+                    )}
                   </div>
-                  <div className="text-2xl md:text-3xl font-bold mb-2">{stat.number}</div>
-                  <div className="text-sm text-slate-300">{stat.label}</div>
-                </CardContent>
-                <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-transparent pointer-events-none" />
-              </Card>
-            ))}
-          </section>
-
-          {/* Modern Wallet Section */}
-          <section id="wallet" className="py-16">
-            <Card className="border-0 bg-slate-800/50 backdrop-blur-xl">
-              <CardContent className="p-8">
-                <h2 className="text-3xl font-bold text-center mb-12 text-white relative">
-                  Your Wallet
-                  <div className="absolute bottom-[-10px] left-1/2 transform -translate-x-1/2 w-20 h-1 rounded bg-gradient-to-r from-cyan-400 to-blue-500"></div>
-                </h2>
-
-                <div className="grid lg:grid-cols-2 gap-8 mb-12">
-                  {/* Modern Balance Card */}
-                  <Card className="border-0 bg-gradient-to-br from-slate-800 to-slate-900 backdrop-blur-xl overflow-hidden relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-blue-500/10" />
-                    <CardContent className="p-8 text-center text-white relative z-10">
-                      <div className="flex justify-center mb-4">
-                        <div className="p-4 rounded-2xl bg-gradient-to-r from-cyan-400 to-blue-500">
-                          <Wallet className="h-8 w-8 text-white" />
-                        </div>
-                      </div>
-                      <div className="text-lg text-slate-300 mb-4">Total Balance</div>
-                      <div className="text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                        {formatCurrency(walletBalance)}
-                      </div>
-                      <div className="text-sm text-green-400 flex items-center justify-center gap-2">
-                        <TrendingUp className="h-4 w-4" />
-                        +$1,250.00 (8.6%) this month
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Modern Actions Card */}
-                  <Card className="border-0 bg-gradient-to-br from-slate-800 to-slate-900 backdrop-blur-xl">
-                    <CardContent className="p-8">
-                      <div className="space-y-4">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button className="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white border-0 rounded-xl transition-all duration-300 hover:scale-105">
-                              <ArrowDownLeft className="mr-2 h-5 w-5" />
-                              Deposit Funds
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="bg-slate-900/95 backdrop-blur-xl border-slate-700">
-                            <DialogHeader>
-                              <DialogTitle className="text-white">Deposit Funds</DialogTitle>
-                              <DialogDescription className="text-slate-400">
-                                Add money to your investment account
-                              </DialogDescription>
-                            </DialogHeader>
-                            <WalletTransactionForm type="deposit" onSubmit={handleWalletTransaction} />
-                          </DialogContent>
-                        </Dialog>
-
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 rounded-xl transition-all duration-300 hover:scale-105">
-                              <ArrowUpRight className="mr-2 h-5 w-5" />
-                              Withdraw Funds
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="bg-slate-900/95 backdrop-blur-xl border-slate-700">
-                            <DialogHeader>
-                              <DialogTitle className="text-white">Withdraw Funds</DialogTitle>
-                              <DialogDescription className="text-slate-400">
-                                Transfer money from your investment account
-                              </DialogDescription>
-                            </DialogHeader>
-                            <WalletTransactionForm type="withdrawal" onSubmit={handleWalletTransaction} />
-                          </DialogContent>
-                        </Dialog>
-
-                        <Button className="w-full py-4 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white border-0 rounded-xl transition-all duration-300 hover:scale-105">
-                          <RefreshCw className="mr-2 h-5 w-5" />
-                          Transfer Funds
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
                 </div>
 
-                {/* Modern Transactions */}
-                <Card className="border-0 bg-slate-800/50 backdrop-blur-xl">
-                  <CardContent className="p-8">
-                    <div className="flex justify-between items-center mb-8 pb-4 border-b border-slate-700">
-                      <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                        <Activity className="h-5 w-5" />
-                        Recent Transactions
-                      </h3>
-                      <Button
-                        onClick={refreshTransactions}
-                        className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold rounded-xl transition-all duration-300 hover:scale-105"
-                      >
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        Refresh
-                      </Button>
-                    </div>
-
-                    <div className="max-h-96 overflow-y-auto space-y-3">
-                      {transactions.slice(0, 8).map((transaction) => (
+                <ScrollArea className="h-80">
+                  {notifications.length === 0 ? (
+                    <div className="p-4 text-center text-slate-400">No notifications yet</div>
+                  ) : (
+                    <div className="space-y-1">
+                      {notifications.slice(0, 10).map((notification) => (
                         <div
-                          key={transaction.id}
-                          className="flex justify-between items-center p-4 rounded-xl bg-slate-700/30 hover:bg-slate-700/50 transition-all duration-300 hover:scale-[1.02]"
+                          key={notification.id}
+                          className={`p-3 hover:bg-slate-800/50 cursor-pointer border-b border-slate-800 last:border-b-0 ${
+                            !notification.read ? "bg-blue-900/20" : ""
+                          }`}
+                          onClick={() => markAsRead(notification.id)}
                         >
-                          <div className="flex items-center space-x-4">
-                            <div
-                              className={`w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold ${
-                                transaction.type === "deposit"
-                                  ? "bg-gradient-to-r from-green-500 to-emerald-600"
-                                  : transaction.type === "withdrawal"
-                                    ? "bg-gradient-to-r from-red-500 to-pink-600"
-                                    : "bg-gradient-to-r from-blue-500 to-purple-600"
-                              }`}
-                            >
-                              {transaction.type === "deposit" ? (
-                                <ArrowDownLeft className="h-5 w-5" />
-                              ) : transaction.type === "withdrawal" ? (
-                                <ArrowUpRight className="h-5 w-5" />
-                              ) : (
-                                <PieChart className="h-5 w-5" />
-                              )}
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-start gap-2 flex-1">
+                              {notification.icon}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <p className="text-sm font-medium truncate text-white">{notification.title}</p>
+                                  {!notification.read && (
+                                    <div className="h-2 w-2 bg-blue-500 rounded-full flex-shrink-0" />
+                                  )}
+                                </div>
+                                <p className="text-xs text-slate-400 mt-1">{notification.message}</p>
+                                <p className="text-xs text-slate-500 mt-1">
+                                  {notification.timestamp.toLocaleTimeString()}
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <h4 className="font-medium text-white">{transaction.note}</h4>
-                              <p className="text-sm text-slate-400">
-                                {transaction.method} • {formatDate(transaction.date)}
-                              </p>
-                            </div>
-                          </div>
-                          <div
-                            className={`font-bold text-lg ${transaction.amount > 0 ? "text-green-400" : "text-red-400"}`}
-                          >
-                            {transaction.amount > 0 ? "+" : ""}
-                            {formatCurrency(transaction.amount)}
                           </div>
                         </div>
                       ))}
                     </div>
-                  </CardContent>
-                </Card>
-              </CardContent>
-            </Card>
-          </section>
+                  )}
+                </ScrollArea>
 
-          {/* Modern Plans Section */}
-          <section id="plans" className="py-16">
-            <Card className="border-0 bg-slate-800/50 backdrop-blur-xl">
-              <CardContent className="p-8">
-                <h2 className="text-3xl font-bold text-center mb-12 text-white relative">
-                  Investment Plans
-                  <div className="absolute bottom-[-10px] left-1/2 transform -translate-x-1/2 w-20 h-1 rounded bg-gradient-to-r from-cyan-400 to-blue-500"></div>
-                </h2>
-
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {[
-                    {
-                      name: "Starter Plan",
-                      price: "$100",
-                      period: "Minimum Investment",
-                      features: [
-                        "8-10% Annual Returns",
-                        "Low Risk Investment",
-                        "Monthly Progress Reports",
-                        "Email Support",
-                        "Flexible Withdrawal",
-                        "Market Analysis Access",
-                      ],
-                      featured: false,
-                      gradient: "from-green-500/20 to-emerald-500/20",
-                      buttonGradient: "from-green-500 to-emerald-600",
-                      icon: Shield,
-                    },
-                    {
-                      name: "Growth Plan",
-                      price: "$1,000",
-                      period: "Minimum Investment",
-                      features: [
-                        "12-15% Annual Returns",
-                        "Medium Risk Investment",
-                        "Weekly Progress Reports",
-                        "Priority Phone Support",
-                        "Quarterly Rebalancing",
-                        "Personal Investment Advisor",
-                        "Tax Optimization Strategies",
-                      ],
-                      featured: true,
-                      gradient: "from-blue-500/20 to-purple-500/20",
-                      buttonGradient: "from-blue-500 to-purple-600",
-                      icon: Zap,
-                    },
-                    {
-                      name: "Premium Plan",
-                      price: "$10,000",
-                      period: "Minimum Investment",
-                      features: [
-                        "15-20% Annual Returns",
-                        "High Risk, High Reward",
-                        "Daily Market Updates",
-                        "24/7 Dedicated Support",
-                        "Monthly Strategy Reviews",
-                        "Access to Premium Markets",
-                        "Personalized Portfolio",
-                        "VIP Investment Events",
-                      ],
-                      featured: false,
-                      gradient: "from-orange-500/20 to-red-500/20",
-                      buttonGradient: "from-orange-500 to-red-600",
-                      icon: Sparkles,
-                    },
-                  ].map((plan, index) => (
-                    <Card
-                      key={index}
-                      className={`relative border-0 bg-gradient-to-br ${plan.gradient} backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl overflow-hidden ${
-                        plan.featured ? "ring-2 ring-blue-500/50" : ""
-                      }`}
-                    >
-                      {plan.featured && (
-                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 to-purple-500" />
-                      )}
-
-                      <CardContent className="p-8 text-white relative z-10">
-                        <div className="text-center mb-8">
-                          <div className="flex justify-center mb-4">
-                            <div className={`p-4 rounded-2xl bg-gradient-to-r ${plan.buttonGradient}`}>
-                              <plan.icon className="h-8 w-8 text-white" />
-                            </div>
-                          </div>
-                          <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-                          <div className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2">
-                            {plan.price}
-                          </div>
-                          <div className="text-sm text-slate-400">{plan.period}</div>
+                {notifications.length > 0 && (
+                  <div className="p-3 border-t border-slate-700">
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-medium text-white">Notification Settings</h4>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-slate-400">Transactions</span>
+                          <Switch
+                            checked={notificationSettings.transactions}
+                            onCheckedChange={(checked) =>
+                              setNotificationSettings((prev) => ({ ...prev, transactions: checked }))
+                            }
+                          />
                         </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-slate-400">Market Updates</span>
+                          <Switch
+                            checked={notificationSettings.marketUpdates}
+                            onCheckedChange={(checked) =>
+                              setNotificationSettings((prev) => ({ ...prev, marketUpdates: checked }))
+                            }
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </PopoverContent>
+            </Popover>
 
-                        <ul className="space-y-3 mb-8">
-                          {plan.features.map((feature, featureIndex) => (
-                            <li key={featureIndex} className="flex items-center text-sm">
-                              <CheckCircle className="text-green-400 h-4 w-4 mr-3 flex-shrink-0" />
-                              {feature}
-                            </li>
-                          ))}
-                        </ul>
+            {/* User Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-10 w-10 rounded-xl">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src="/placeholder.svg" alt={user.name} />
+                    <AvatarFallback className="bg-gradient-to-r from-cyan-400 to-blue-500 text-white">
+                      {user.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-56 bg-slate-900/95 backdrop-blur-xl border-slate-700"
+                align="end"
+                forceMount
+              >
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none text-white">{user.name}</p>
+                    <p className="text-xs leading-none text-slate-400">{user.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-slate-700" />
+                <DropdownMenuItem onClick={() => setShowKYCModal(true)} className="text-slate-300 hover:text-white">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile & KYC</span>
+                  {kycStatus === "verified" && <CheckCircle className="ml-auto h-4 w-4 text-green-500" />}
+                  {kycStatus === "pending" && <Clock className="ml-auto h-4 w-4 text-yellow-500" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-slate-300 hover:text-white">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-slate-700" />
+                <DropdownMenuItem onClick={onLogout} className="text-slate-300 hover:text-white">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </nav>
 
-                        <Button
-                          onClick={() => selectPlan(plan.name)}
-                          className={`w-full py-3 font-bold rounded-xl transition-all duration-300 hover:scale-105 bg-gradient-to-r ${plan.buttonGradient} hover:shadow-lg border-0`}
-                        >
-                          {plan.featured ? "Most Popular" : "Choose Plan"}
-                        </Button>
-                      </CardContent>
-
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-transparent pointer-events-none" />
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </section>
+          {/* Mobile Menu */}
+          <div
+            className={`md:hidden transition-all duration-300 ease-in-out ${
+              isMobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+            } overflow-hidden`}
+          >
+            <div className="py-4 space-y-2 border-t border-white/10 mt-4">
+              {[
+                { key: "dashboard", label: "Dashboard", icon: BarChart3 },
+                { key: "plans", label: "Plans", icon: Target },
+                { key: "wallet", label: "Wallet", icon: Wallet },
+                { key: "portfolio", label: "Portfolio", icon: PieChart },
+                { key: "transactions", label: "Transactions", icon: Activity },
+              ].map((item) => (
+                <button
+                  key={item.key}
+                  onClick={() => {
+                    setCurrentView(item.key as any)
+                    setIsMobileMenuOpen(false)
+                  }}
+                  className={`w-full flex items-center gap-3 text-white/80 hover:text-white hover:bg-white/10 px-4 py-3 rounded-xl transition-all duration-300 ${
+                    currentView === item.key ? "bg-white/20 text-white" : ""
+                  }`}
+                >
+                  <item.icon className="h-5 w-5" />
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
+      </header>
+
+      <main>
+        {currentView === "dashboard" && <DashboardView onNavigate={setCurrentView} />}
+        {currentView === "plans" && <PlansView onSelectPlan={selectPlan} />}
+        {currentView === "wallet" && (
+          <WalletView
+            walletBalance={walletBalance}
+            transactions={transactions}
+            onTransaction={handleWalletTransaction}
+            onRefresh={refreshTransactions}
+            formatCurrency={formatCurrency}
+            formatDate={formatDate}
+          />
+        )}
+        {currentView === "portfolio" && <PortfolioView />}
+        {currentView === "transactions" && (
+          <TransactionsView transactions={transactions} formatCurrency={formatCurrency} formatDate={formatDate} />
+        )}
       </main>
 
       {/* Modern Footer */}
