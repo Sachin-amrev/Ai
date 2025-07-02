@@ -416,8 +416,9 @@ export function PlansView({ onSelectPlan }: { onSelectPlan: (planName: string) =
         "Educational Resources",
         "Flexible Withdrawal",
       ],
-      gradient: "from-green-500/20 to-emerald-500/20",
-      buttonGradient: "from-green-500 to-emerald-600",
+      gradient: "from-green-400/30 to-emerald-400/30",
+      buttonGradient: "from-green-400 to-emerald-500",
+      borderGradient: "from-green-400/50 to-emerald-400/50",
       icon: Shield,
       category: "conservative",
       popular: false,
@@ -441,8 +442,9 @@ export function PlansView({ onSelectPlan }: { onSelectPlan: (planName: string) =
         "Tax Optimization Strategies",
         "Market Research Access",
       ],
-      gradient: "from-blue-500/20 to-purple-500/20",
-      buttonGradient: "from-blue-500 to-purple-600",
+      gradient: "from-blue-400/30 to-purple-400/30",
+      buttonGradient: "from-blue-400 to-purple-500",
+      borderGradient: "from-blue-400/50 to-purple-400/50",
       icon: Zap,
       category: "balanced",
       popular: true,
@@ -467,8 +469,9 @@ export function PlansView({ onSelectPlan }: { onSelectPlan: (planName: string) =
         "Alternative Investments",
         "VIP Investment Events",
       ],
-      gradient: "from-orange-500/20 to-red-500/20",
-      buttonGradient: "from-orange-500 to-red-600",
+      gradient: "from-orange-400/30 to-red-400/30",
+      buttonGradient: "from-orange-400 to-red-500",
+      borderGradient: "from-orange-400/50 to-red-400/50",
       icon: Sparkles,
       category: "aggressive",
       popular: false,
@@ -493,8 +496,9 @@ export function PlansView({ onSelectPlan }: { onSelectPlan: (planName: string) =
         "White-glove Service",
         "Exclusive Events & Networking",
       ],
-      gradient: "from-yellow-500/20 to-amber-500/20",
-      buttonGradient: "from-yellow-500 to-amber-600",
+      gradient: "from-yellow-400/30 to-amber-400/30",
+      buttonGradient: "from-yellow-400 to-amber-500",
+      borderGradient: "from-yellow-400/50 to-amber-400/50",
       icon: Crown,
       category: "elite",
       popular: false,
@@ -519,8 +523,9 @@ export function PlansView({ onSelectPlan }: { onSelectPlan: (planName: string) =
         "Green Technology Focus",
         "Carbon Footprint Reduction",
       ],
-      gradient: "from-teal-500/20 to-green-500/20",
-      buttonGradient: "from-teal-500 to-green-600",
+      gradient: "from-teal-400/30 to-green-400/30",
+      buttonGradient: "from-teal-400 to-green-500",
+      borderGradient: "from-teal-400/50 to-green-400/50",
       icon: Target,
       category: "esg",
       popular: false,
@@ -572,13 +577,18 @@ export function PlansView({ onSelectPlan }: { onSelectPlan: (planName: string) =
           {filteredPlans.map((plan) => (
             <Card
               key={plan.id}
-              className={`relative border-0 bg-gradient-to-br ${plan.gradient} backdrop-blur-xl transition-all duration-500 hover:scale-105 hover:shadow-2xl group cursor-pointer ${
-                plan.popular ? "ring-2 ring-blue-500/50 hover:ring-blue-400/75" : "hover:shadow-cyan-500/25"
+              className={`relative border-2 bg-gradient-to-br ${plan.gradient} backdrop-blur-xl transition-all duration-500 hover:scale-105 hover:shadow-2xl group cursor-pointer border-gradient-to-r ${plan.borderGradient} ${
+                plan.popular
+                  ? "ring-4 ring-blue-400/75 hover:ring-blue-300/90 shadow-blue-400/25"
+                  : "hover:shadow-cyan-400/25"
               }`}
+              style={{
+                borderImage: `linear-gradient(135deg, ${plan.borderGradient.replace("from-", "").replace("to-", "").replace("/50", "")}) 1`,
+              }}
             >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                  <Badge className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1 text-xs animate-pulse">
+                  <Badge className="bg-gradient-to-r from-blue-400 to-purple-500 text-white px-3 py-1 text-xs animate-pulse shadow-lg shadow-blue-400/50">
                     <Star className="h-3 w-3 mr-1" />
                     {plan.badge}
                   </Badge>
@@ -587,7 +597,7 @@ export function PlansView({ onSelectPlan }: { onSelectPlan: (planName: string) =
 
               {!plan.popular && (
                 <div className="absolute -top-3 right-4 z-10">
-                  <Badge className={`bg-gradient-to-r ${plan.buttonGradient} text-white px-2 py-1 text-xs`}>
+                  <Badge className={`bg-gradient-to-r ${plan.buttonGradient} text-white px-2 py-1 text-xs shadow-lg`}>
                     <plan.badgeIcon className="h-3 w-3 mr-1" />
                     {plan.badge}
                   </Badge>
@@ -598,7 +608,7 @@ export function PlansView({ onSelectPlan }: { onSelectPlan: (planName: string) =
                 <div className="text-center mb-6">
                   <div className="flex justify-center mb-4">
                     <div
-                      className={`p-3 rounded-xl bg-gradient-to-r ${plan.buttonGradient} group-hover:scale-110 transition-all duration-300 group-hover:animate-pulse`}
+                      className={`p-3 rounded-xl bg-gradient-to-r ${plan.buttonGradient} group-hover:scale-110 transition-all duration-300 group-hover:animate-pulse shadow-lg`}
                     >
                       <plan.icon className="h-6 w-6 text-white" />
                     </div>
@@ -640,7 +650,19 @@ export function PlansView({ onSelectPlan }: { onSelectPlan: (planName: string) =
                       key={index}
                       className="flex items-center text-xs sm:text-sm group-hover:text-cyan-300 transition-colors"
                     >
-                      <CheckCircle className="text-green-400 h-3 w-3 mr-2 flex-shrink-0 group-hover:animate-pulse" />
+                      <CheckCircle
+                        className={`h-3 w-3 mr-2 flex-shrink-0 group-hover:animate-pulse ${
+                          plan.category === "conservative"
+                            ? "text-green-400"
+                            : plan.category === "balanced"
+                              ? "text-blue-400"
+                              : plan.category === "aggressive"
+                                ? "text-orange-400"
+                                : plan.category === "elite"
+                                  ? "text-yellow-400"
+                                  : "text-teal-400"
+                        }`}
+                      />
                       {feature}
                     </li>
                   ))}
