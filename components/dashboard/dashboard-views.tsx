@@ -416,14 +416,12 @@ export function PlansView({ onSelectPlan }: { onSelectPlan: (planName: string) =
         "Educational Resources",
         "Flexible Withdrawal",
       ],
-      gradient: "from-green-400/30 to-emerald-400/30",
-      buttonGradient: "from-green-400 to-emerald-500",
-      borderGradient: "from-green-400/50 to-emerald-400/50",
       icon: Shield,
       category: "conservative",
       popular: false,
       badge: "Safe",
       badgeIcon: Shield,
+      planClass: "starter",
     },
     {
       id: 2,
@@ -442,14 +440,12 @@ export function PlansView({ onSelectPlan }: { onSelectPlan: (planName: string) =
         "Tax Optimization Strategies",
         "Market Research Access",
       ],
-      gradient: "from-blue-400/30 to-purple-400/30",
-      buttonGradient: "from-blue-400 to-purple-500",
-      borderGradient: "from-blue-400/50 to-purple-400/50",
       icon: Zap,
       category: "balanced",
       popular: true,
       badge: "Most Popular",
       badgeIcon: Star,
+      planClass: "growth",
     },
     {
       id: 3,
@@ -469,14 +465,12 @@ export function PlansView({ onSelectPlan }: { onSelectPlan: (planName: string) =
         "Alternative Investments",
         "VIP Investment Events",
       ],
-      gradient: "from-orange-400/30 to-red-400/30",
-      buttonGradient: "from-orange-400 to-red-500",
-      borderGradient: "from-orange-400/50 to-red-400/50",
       icon: Sparkles,
       category: "aggressive",
       popular: false,
       badge: "High Yield",
       badgeIcon: Flame,
+      planClass: "premium",
     },
     {
       id: 4,
@@ -496,14 +490,12 @@ export function PlansView({ onSelectPlan }: { onSelectPlan: (planName: string) =
         "White-glove Service",
         "Exclusive Events & Networking",
       ],
-      gradient: "from-yellow-400/30 to-amber-400/30",
-      buttonGradient: "from-yellow-400 to-amber-500",
-      borderGradient: "from-yellow-400/50 to-amber-400/50",
       icon: Crown,
       category: "elite",
       popular: false,
       badge: "Elite",
       badgeIcon: Crown,
+      planClass: "elite",
     },
     {
       id: 5,
@@ -523,14 +515,12 @@ export function PlansView({ onSelectPlan }: { onSelectPlan: (planName: string) =
         "Green Technology Focus",
         "Carbon Footprint Reduction",
       ],
-      gradient: "from-teal-400/30 to-green-400/30",
-      buttonGradient: "from-teal-400 to-green-500",
-      borderGradient: "from-teal-400/50 to-green-400/50",
       icon: Target,
       category: "esg",
       popular: false,
       badge: "Sustainable",
       badgeIcon: Award,
+      planClass: "esg",
     },
   ]
 
@@ -577,18 +567,42 @@ export function PlansView({ onSelectPlan }: { onSelectPlan: (planName: string) =
           {filteredPlans.map((plan) => (
             <Card
               key={plan.id}
-              className={`relative border-2 bg-gradient-to-br ${plan.gradient} backdrop-blur-xl transition-all duration-500 hover:scale-105 hover:shadow-2xl group cursor-pointer border-gradient-to-r ${plan.borderGradient} ${
+              className={`plan-card ${plan.planClass} relative backdrop-blur-xl transition-all duration-500 hover:scale-105 hover:shadow-2xl group cursor-pointer ${
                 plan.popular
                   ? "ring-4 ring-blue-400/75 hover:ring-blue-300/90 shadow-blue-400/25"
                   : "hover:shadow-cyan-400/25"
               }`}
               style={{
-                borderImage: `linear-gradient(135deg, ${plan.borderGradient.replace("from-", "").replace("to-", "").replace("/50", "")}) 1`,
+                background:
+                  plan.planClass === "starter"
+                    ? "linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.2) 100%)"
+                    : plan.planClass === "growth"
+                      ? "linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%)"
+                      : plan.planClass === "premium"
+                        ? "linear-gradient(135deg, rgba(249, 115, 22, 0.2) 0%, rgba(239, 68, 68, 0.2) 100%)"
+                        : plan.planClass === "elite"
+                          ? "linear-gradient(135deg, rgba(234, 179, 8, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%)"
+                          : "linear-gradient(135deg, rgba(20, 184, 166, 0.2) 0%, rgba(16, 185, 129, 0.2) 100%)",
+                border:
+                  plan.planClass === "starter"
+                    ? "2px solid rgba(16, 185, 129, 0.5)"
+                    : plan.planClass === "growth"
+                      ? "2px solid rgba(59, 130, 246, 0.5)"
+                      : plan.planClass === "premium"
+                        ? "2px solid rgba(249, 115, 22, 0.5)"
+                        : plan.planClass === "elite"
+                          ? "2px solid rgba(234, 179, 8, 0.5)"
+                          : "2px solid rgba(20, 184, 166, 0.5)",
               }}
             >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                  <Badge className="bg-gradient-to-r from-blue-400 to-purple-500 text-white px-3 py-1 text-xs animate-pulse shadow-lg shadow-blue-400/50">
+                  <Badge
+                    className="text-white px-3 py-1 text-xs animate-pulse shadow-lg shadow-blue-400/50"
+                    style={{
+                      background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
+                    }}
+                  >
                     <Star className="h-3 w-3 mr-1" />
                     {plan.badge}
                   </Badge>
@@ -597,7 +611,19 @@ export function PlansView({ onSelectPlan }: { onSelectPlan: (planName: string) =
 
               {!plan.popular && (
                 <div className="absolute -top-3 right-4 z-10">
-                  <Badge className={`bg-gradient-to-r ${plan.buttonGradient} text-white px-2 py-1 text-xs shadow-lg`}>
+                  <Badge
+                    className="text-white px-2 py-1 text-xs shadow-lg"
+                    style={{
+                      background:
+                        plan.planClass === "starter"
+                          ? "linear-gradient(135deg, #10b981 0%, #059669 100%)"
+                          : plan.planClass === "premium"
+                            ? "linear-gradient(135deg, #f97316 0%, #ef4444 100%)"
+                            : plan.planClass === "elite"
+                              ? "linear-gradient(135deg, #eab308 0%, #f59e0b 100%)"
+                              : "linear-gradient(135deg, #14b8a6 0%, #10b981 100%)",
+                    }}
+                  >
                     <plan.badgeIcon className="h-3 w-3 mr-1" />
                     {plan.badge}
                   </Badge>
@@ -608,7 +634,19 @@ export function PlansView({ onSelectPlan }: { onSelectPlan: (planName: string) =
                 <div className="text-center mb-6">
                   <div className="flex justify-center mb-4">
                     <div
-                      className={`p-3 rounded-xl bg-gradient-to-r ${plan.buttonGradient} group-hover:scale-110 transition-all duration-300 group-hover:animate-pulse shadow-lg`}
+                      className={`icon-${plan.planClass} p-3 rounded-xl group-hover:scale-110 transition-all duration-300 group-hover:animate-pulse shadow-lg`}
+                      style={{
+                        background:
+                          plan.planClass === "starter"
+                            ? "linear-gradient(135deg, #10b981 0%, #059669 100%)"
+                            : plan.planClass === "growth"
+                              ? "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)"
+                              : plan.planClass === "premium"
+                                ? "linear-gradient(135deg, #f97316 0%, #ef4444 100%)"
+                                : plan.planClass === "elite"
+                                  ? "linear-gradient(135deg, #eab308 0%, #f59e0b 100%)"
+                                  : "linear-gradient(135deg, #14b8a6 0%, #10b981 100%)",
+                      }}
                     >
                       <plan.icon className="h-6 w-6 text-white" />
                     </div>
@@ -674,7 +712,21 @@ export function PlansView({ onSelectPlan }: { onSelectPlan: (planName: string) =
                 <div className="space-y-2">
                   <Button
                     onClick={() => onSelectPlan(plan.name)}
-                    className={`w-full py-2 font-bold rounded-xl transition-all duration-300 hover:scale-105 bg-gradient-to-r ${plan.buttonGradient} border-0 text-sm hover:shadow-lg`}
+                    className={`btn-${plan.planClass} w-full py-2 font-bold rounded-xl transition-all duration-300 hover:scale-105 text-sm hover:shadow-lg`}
+                    style={{
+                      background:
+                        plan.planClass === "starter"
+                          ? "linear-gradient(135deg, #10b981 0%, #059669 100%)"
+                          : plan.planClass === "growth"
+                            ? "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)"
+                            : plan.planClass === "premium"
+                              ? "linear-gradient(135deg, #f97316 0%, #ef4444 100%)"
+                              : plan.planClass === "elite"
+                                ? "linear-gradient(135deg, #eab308 0%, #f59e0b 100%)"
+                                : "linear-gradient(135deg, #14b8a6 0%, #10b981 100%)",
+                      color: "white",
+                      border: "none",
+                    }}
                   >
                     Select Plan
                   </Button>
